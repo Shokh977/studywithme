@@ -36,3 +36,110 @@
     transform: rotate(360deg);
   }
 }
+
+/* Custom styles for Study With Me app */
+.App {
+  text-align: center;
+}
+
+/* Add subtle animation for the background */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Optional hover effects */
+button:hover {
+  transform: translateY(-2px);
+}
+
+/* Particle Animation Background */
+.particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Default floating particles */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 10px 2px rgba(125, 180, 255, 0.2);
+  animation: float 15s infinite ease-in-out;
+  opacity: 0;
+}
+
+@keyframes float {
+  0% {
+    opacity: 0;
+    transform: translateY(0) translateX(0) rotate(0deg) scale(0.2);
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-800px) translateX(200px) rotate(360deg) scale(1);
+  }
+}
+
+/* Bubble particles */
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), rgba(160, 220, 255, 0.1));
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.5), 0 0 15px rgba(100, 180, 255, 0.2);
+  animation: bubbleRise 20s infinite ease-in-out;
+}
+
+@keyframes bubbleRise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) translateX(0) scale(0.3);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-1000px) translateX(100px) scale(0.8);
+  }
+}
+
+/* Star particles */
+.star {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8), 0 0 20px 6px rgba(200, 210, 255, 0.3);
+  animation: twinkle 5s infinite ease-in-out;
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
