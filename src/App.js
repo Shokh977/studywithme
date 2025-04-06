@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
-// Import local video assets
-import forestVideo from './assets/forrest.mp4';
-import rainVideo from './assets/rain.mp4';
-import oceanVideo from './assets/ocean.mp4';
-import cloudVideo from './assets/cloud.mp4';
-import waterfallVideo from './assets/waterfall.mp4';
-
 // BackgroundMusicPlayer component using HTML5 audio element
 const BackgroundMusicPlayer = ({ isPlaying, onError }) => {
   const audioRef = useRef(null);
@@ -123,11 +116,11 @@ function App() {
   
   // Updated with local video sources
   const videoBackgrounds = {
-    forest: forestVideo,
-    rain: rainVideo,
-    ocean: oceanVideo,
-    clouds: cloudVideo,
-    waterfall: waterfallVideo
+    forest: process.env.PUBLIC_URL + '/assets/forrest.mp4',
+    rain: process.env.PUBLIC_URL + '/assets/rain.mp4',
+    ocean: process.env.PUBLIC_URL + '/assets/ocean.mp4',
+    clouds: process.env.PUBLIC_URL + '/assets/cloud.mp4',
+    waterfall: process.env.PUBLIC_URL + '/assets/waterfall.mp4'
   };
 
   // Background icons for selector buttons
