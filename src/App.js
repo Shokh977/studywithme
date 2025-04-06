@@ -65,26 +65,53 @@ const LofiMusicPlayer = ({ isVisible, toggleVisibility }) => {
   if (!isVisible) return null;
   
   return (
-    <div className="w-full flex justify-center mt-4">
-      <div className="bg-black/30 backdrop-blur-md p-2 rounded-xl relative">
-        <iframe
-          width={isMobile ? "280" : "320"}
-          height={isMobile ? "157" : "180"}
-          src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&loop=1&playlist=jfKfPfyJRdk"
-          title="LoFi Chill Beats"
-          frameBorder="0"
-          allow="autoplay; encrypted-media"
-          className="rounded-lg shadow-xl"
-        ></iframe>
-        <button 
-          onClick={toggleVisibility} 
-          className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-lg"
-          aria-label="Close player"
-        >
-          ×
-        </button>
-      </div>
-    </div>
+    <>
+      {isMobile ? (
+        // Mobile layout - bottom of the timer in the timer container
+        <div className="w-full flex justify-center mt-6 mb-24">
+          <div className="bg-black/30 backdrop-blur-md p-2 rounded-xl relative">
+            <iframe
+              width="280"
+              height="157"
+              src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&loop=1&playlist=jfKfPfyJRdk"
+              title="LoFi Chill Beats"
+              frameBorder="0"
+              allow="autoplay; encrypted-media"
+              className="rounded-lg shadow-xl"
+            ></iframe>
+            <button 
+              onClick={toggleVisibility} 
+              className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-lg"
+              aria-label="Close player"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ) : (
+        // Desktop layout - fixed position under the calendar
+        <div className="fixed right-6 bottom-6 z-30">
+          <div className="bg-black/30 backdrop-blur-md p-2 rounded-xl relative">
+            <iframe
+              width="320"
+              height="180"
+              src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&loop=1&playlist=jfKfPfyJRdk"
+              title="LoFi Chill Beats"
+              frameBorder="0"
+              allow="autoplay; encrypted-media"
+              className="rounded-lg shadow-xl"
+            ></iframe>
+            <button 
+              onClick={toggleVisibility} 
+              className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-lg"
+              aria-label="Close player"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -425,7 +452,7 @@ function App() {
   const [showInfoModal, setShowInfoModal] = useState(false);
 
   return (
-    <div className={`min-h-screen ${videoError ? gradientBackgrounds[videoBackground] : 'bg-dark-bg'} text-white flex items-center justify-center relative overflow-hidden`}>
+    <div className={`min-h-screen ${videoError ? gradientBackgrounds[videoBackground] : ''} text-white flex items-center justify-center relative overflow-hidden`}>
       {/* Background Video with Overlay */}
       {!videoError && (
         <div className="absolute top-0 left-0 w-full h-full">
@@ -436,7 +463,7 @@ function App() {
           )}
           <video
             ref={videoRef}
-            className={`w-full h-full object-cover transition-all duration-1000 scale-105 ${isVideoLoading ? 'opacity-0' : 'opacity-100'}`}
+            className={`w-full h-full object-cover transition-all duration-1000 scale-100 ${isVideoLoading ? 'opacity-0' : 'opacity-100'}`}
             src={videoBackgrounds[videoBackground]}
             autoPlay
             loop
@@ -448,7 +475,7 @@ function App() {
           />
         </div>
       )}
-      <div className="absolute top-0 left-0 w-full h-full bg-black/60 backdrop-blur-sm"></div>
+      <div className="absolute top-0 left-0 w-full h-full bg-black/20 "></div>
       
       {/* Mobile-optimized top controls wrapper */}
       {isMobile && (
@@ -592,12 +619,10 @@ function App() {
             </div>
           </div>
 
-          {/* Lofi Music Player */}
-          <LofiMusicPlayer isVisible={showLofiPlayer} toggleVisibility={() => setShowLofiPlayer(!showLofiPlayer)} />
-          
           {/* Mobile YouTube Channel Badge */}
           {isMobile && (
-            <div className="flex justify-center mt-4 mb-1">
+            <div className="flex justify-center mt-4
+             mb-1">
               <a 
                 href="https://www.youtube.com/channel/awaken6143" 
                 target="_blank" 
@@ -612,11 +637,15 @@ function App() {
               </a>
             </div>
           )}
-        </div>
+
+          {/* LoFi Music Player */}
+        </div>      <LofiMusicPlayer isVisible={showLofiPlayer} toggleVisibility={() => setShowLofiPlayer(!showLofiPlayer)} />
+
       </div>
+
       
       {/* Background Controls - Mobile version at bottom, desktop on left side */}
-      <div className={`fixed ${isMobile ? 'bottom-4 left-0 right-0 flex justify-center' : 'bottom-6 left-6'} z-20`}>
+      <div className={`fixed ${isMobile ? 'bottom-4  left-0 right-0 px- flex justify-center' : 'bottom-6 left-6'} z-20`}>
         <div className="bg-black/50 backdrop-blur-md rounded-2xl p-2 sm:p-4 shadow-xl">
           <div className={`flex ${isMobile ? 'flex-row items-center' : 'flex-col'} gap-2`}>
             {/* LoFi Music Player Toggle */}
@@ -624,7 +653,7 @@ function App() {
               onClick={() => setShowLofiPlayer(!showLofiPlayer)}
               className={`flex items-center justify-center rounded-lg transition-all ${
                 showLofiPlayer ? 'bg-pink-600/70 hover:bg-pink-600/90' : 'bg-violet-600/70 hover:bg-violet-600/90'
-              } ${isMobile ? 'w-8 h-8' : 'px-3 sm:px-5 py-2 gap-2'}`}
+              } ${isMobile ? 'w-8 h-8' : 'px-3 sm:px-5 py-2 my-2 gap-2'}`}
             >
               <span className={`${isMobile ? 'text-base' : 'text-xl'}`}>{showLofiPlayer ? '🎵' : '🎧'}</span>
               {!isMobile && <span className="font-light">{showLofiPlayer ? 'Playing Music' : 'Play Music'}</span>}
@@ -636,7 +665,7 @@ function App() {
                 <button
                   key={bg}
                   onClick={() => changeBackground(bg)}
-                  className={`flex items-center justify-center w-8 h-8 rounded-full transition-all ${
+                  className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
                     videoBackground === bg 
                       ? 'ring-2 ring-white scale-110' 
                       : 'opacity-70 hover:opacity-100'
@@ -675,7 +704,7 @@ function App() {
             {/* YouTube Channel Badge */}
             <div className="mt-2 flex justify-center">
               <a 
-                href="https://www.youtube.com/channel/awaken6143" 
+                href="https://www.youtube.com/awaken6143" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-all shadow-lg w-full justify-center"
@@ -684,7 +713,7 @@ function App() {
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
-                <span className="text-sm font-medium">My Channel</span>
+                <span className="text-sm font-medium">Awaken</span>
               </a>
             </div>
             
@@ -757,9 +786,8 @@ function App() {
         </div>
       )}
 
-      {/* Background Music Player */}
       <BackgroundMusicPlayer isPlaying={isMusicPlaying} />
-    </div>
+    </div> 
   );
 }
 
