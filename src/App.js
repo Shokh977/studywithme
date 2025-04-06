@@ -45,52 +45,46 @@ const BackgroundMusicPlayer = ({ isPlaying, onError }) => {
 const LofiMusicPlayer = ({ isVisible, toggleVisibility }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const iframeRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // Handle iframe load event
   const handleIframeLoaded = () => {
     setIsLoaded(true);
   };
 
+  // Check for mobile device
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  if (!isVisible) return null;
+  
   return (
-    <>
-      {/* Hidden player */}
-      <div className="fixed bottom-10 right-6 z-40" style={{ opacity: 0, pointerEvents: 'none' }}>
+    <div className="w-full flex justify-center mt-4">
+      <div className="bg-black/30 backdrop-blur-md p-2 rounded-xl relative">
         <iframe
-          ref={iframeRef}
-          width="1"
-          height="1"
+          width={isMobile ? "280" : "320"}
+          height={isMobile ? "157" : "180"}
           src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&loop=1&playlist=jfKfPfyJRdk"
           title="LoFi Chill Beats"
           frameBorder="0"
           allow="autoplay; encrypted-media"
-          onLoad={handleIframeLoaded}
+          className="rounded-lg shadow-xl"
         ></iframe>
+        <button 
+          onClick={toggleVisibility} 
+          className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-lg"
+          aria-label="Close player"
+        >
+          ×
+        </button>
       </div>
-
-      {/* Visible mini player (controlled separately) */}
-      {isVisible && (
-        <div className="fixed bottom-20 right-6 z-40 transition-all duration-300 transform scale-100">
-          <div className="bg-black/30 backdrop-blur-md p-2 rounded-xl">
-            <iframe
-              width="260"
-              height="146"
-              src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&loop=1&playlist=jfKfPfyJRdk"
-              title="LoFi Chill Beats"
-              frameBorder="0"
-              allow="autoplay; encrypted-media"
-              className="rounded-lg shadow-xl"
-            ></iframe>
-            <button 
-              onClick={toggleVisibility} 
-              className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-lg"
-              aria-label="Close player"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 };
 
@@ -456,12 +450,40 @@ function App() {
       )}
       <div className="absolute top-0 left-0 w-full h-full bg-black/60 backdrop-blur-sm"></div>
       
+      {/* Mobile-optimized top controls wrapper */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-20 p-2 flex justify-between items-center bg-black/30 backdrop-blur-md">
+          {/* Info Button */}
+          <button
+            onClick={() => setShowInfoModal(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-lg shadow-md text-sm"
+          >
+            ℹ️
+          </button>
+          
+          {/* Language Selector - Mobile version */}
+          <div className="flex gap-1">
+            {['en', 'ko', 'uz'].map((lang) => (
+              <button
+                key={lang}
+                onClick={() => handleLanguageChange(lang)}
+                className={`px-2 py-1 rounded-lg text-xs transition-all ${
+                  language === lang ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md' : 'bg-gray-800 text-gray-300'
+                }`}
+              >
+                {lang.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      
       {/* Main Content Container - Centered */}
-      <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 relative z-10">
+      <div className={`w-full max-w-3xl mx-auto px-4 sm:px-6 relative z-10 ${isMobile ? 'pt-12' : ''}`}>
         <div className="bg-black/40 backdrop-blur-md rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
           
           {/* Header Section */}
-          <header className="text-center mb-6 md:mb-10">
+          <header className="text-center mb-4 md:mb-8">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-400">
               {t.title}
             </h1>
@@ -471,12 +493,12 @@ function App() {
           </header>
           
           {/* Pomodoro Format Selector */}
-          <div className="flex justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 md:mb-10">
+          <div className="flex justify-center gap-2 mb-4 sm:mb-6 md:mb-8">
             {Object.keys(sessionConfigs).map((format) => (
               <button
                 key={format}
                 onClick={() => handleFormatChange(format)}
-                className={`px-3 sm:px-4 md:px-6 py-2 rounded-full text-sm sm:text-base capitalize transition-all duration-300 ${
+                className={`px-2 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full text-sm capitalize transition-all ${
                   pomodoroFormat === format 
                     ? 'bg-gradient-to-r from-indigo-500/80 to-purple-500/80 text-white shadow-lg' 
                     : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50'
@@ -488,12 +510,12 @@ function App() {
           </div>
 
           {/* Total Sessions Selector */}
-          <div className="flex justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 md:mb-10">
+          <div className="flex justify-center gap-2 mb-4 sm:mb-6 md:mb-8">
             {[1, 2, 3, 4].map((sessions) => (
               <button
                 key={sessions}
                 onClick={() => handleTotalSessionsChange(sessions)}
-                className={`px-3 sm:px-4 md:px-6 py-2 rounded-full text-sm sm:text-base capitalize transition-all duration-300 ${
+                className={`px-2 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full text-sm capitalize transition-all ${
                   totalSessions === sessions 
                     ? 'bg-gradient-to-r from-indigo-500/80 to-purple-500/80 text-white shadow-lg' 
                     : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50'
@@ -505,9 +527,9 @@ function App() {
           </div>
           
           {/* Session Progress Indicator */}
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-4">
             <div className="bg-gray-800/50 rounded-xl p-3 text-center">
-              <p className="text-gray-300 text-sm mb-2">{t.progress}</p>
+              <p className="text-gray-300 text-xs sm:text-sm mb-1 sm:mb-2">{t.progress}</p>
               <div className="flex items-center justify-center gap-1">
                 {[...Array(totalSessions)].map((_, index) => (
                   <div
@@ -527,9 +549,9 @@ function App() {
           </div>
           
           {/* Timer Display */}
-          <div className="flex flex-col items-center justify-center my-4 sm:my-6 md:my-8">
-            <div className="bg-black/30 backdrop-blur-lg rounded-xl px-6 py-3 sm:px-8 sm:py-4 shadow-xl border border-white/5">
-              <div className={`timer-display ${isMobile ? 'text-5xl sm:text-6xl' : 'text-6xl md:text-7xl'} font-bold text-white/95 drop-shadow-lg tracking-wider`}>
+          <div className="flex flex-col items-center justify-center my-3 sm:my-6 md:my-8">
+            <div className="bg-black/30 backdrop-blur-lg rounded-xl px-5 py-2 sm:px-8 sm:py-4 shadow-xl border border-white/5">
+              <div className={`timer-display ${isMobile ? 'text-5xl' : 'text-6xl md:text-7xl'} font-bold text-white/95 drop-shadow-lg tracking-wider`}>
                 {formatTime(time)}
               </div>
               <div className="w-full h-px bg-gradient-to-r from-indigo-500/30 via-purple-500/30 to-indigo-500/30 my-2 rounded-full"></div>
@@ -545,8 +567,8 @@ function App() {
                 className="bg-gradient-to-br from-green-500/80 to-teal-600/80 hover:from-green-500 hover:to-teal-600 px-4 sm:px-6 py-2 rounded-full text-white text-sm font-medium shadow-lg"
               >
                 <span className="flex items-center gap-1">
-                  <span>▶️</span>
-                  <span>{t.start}</span>
+                  <span>{isMobile ? '▶️' : '▶️'}</span>
+                  {!isMobile && <span>{t.start}</span>}
                 </span>
               </button>
               <button
@@ -554,8 +576,8 @@ function App() {
                 className="bg-gradient-to-br from-amber-500/80 to-orange-600/80 hover:from-amber-500 hover:to-orange-600 px-4 sm:px-6 py-2 rounded-full text-white text-sm font-medium shadow-lg"
               >
                 <span className="flex items-center gap-1">
-                  <span>⏸</span>
-                  <span>{t.pause}</span>
+                  <span>{isMobile ? '⏸' : '⏸'}</span>
+                  {!isMobile && <span>{t.pause}</span>}
                 </span>
               </button>
               <button
@@ -563,32 +585,53 @@ function App() {
                 className="bg-gradient-to-br from-gray-600/80 to-gray-700/80 hover:from-gray-600 hover:to-gray-700 px-4 sm:px-6 py-2 rounded-full text-white text-sm font-medium shadow-lg"
               >
                 <span className="flex items-center gap-1">
-                  <span>🔄</span>
-                  <span>{t.reset}</span>
+                  <span>{isMobile ? '🔄' : '🔄'}</span>
+                  {!isMobile && <span>{t.reset}</span>}
                 </span>
               </button>
             </div>
           </div>
+
+          {/* Lofi Music Player */}
+          <LofiMusicPlayer isVisible={showLofiPlayer} toggleVisibility={() => setShowLofiPlayer(!showLofiPlayer)} />
+          
+          {/* Mobile YouTube Channel Badge */}
+          {isMobile && (
+            <div className="flex justify-center mt-4 mb-1">
+              <a 
+                href="https://www.youtube.com/channel/awaken6143" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-all shadow-md text-xs w-auto"
+                title="Visit my YouTube channel"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                <span className="font-medium">My Channel</span>
+              </a>
+            </div>
+          )}
         </div>
       </div>
       
-      {/* Background Controls - Positioned based on screen size */}
-      <div className={`fixed ${isMobile ? 'bottom-4 left-1/2 -translate-x-1/2' : 'bottom-6 left-6'} z-20`}>
-        <div className="bg-black/50 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl">
-          <div className={`flex ${isMobile ? 'flex-row' : 'flex-col'} gap-3`}>
-            {/* LoFi Music Player Toggle (Renamed) */}
+      {/* Background Controls - Mobile version at bottom, desktop on left side */}
+      <div className={`fixed ${isMobile ? 'bottom-4 left-0 right-0 flex justify-center' : 'bottom-6 left-6'} z-20`}>
+        <div className="bg-black/50 backdrop-blur-md rounded-2xl p-2 sm:p-4 shadow-xl">
+          <div className={`flex ${isMobile ? 'flex-row items-center' : 'flex-col'} gap-2`}>
+            {/* LoFi Music Player Toggle */}
             <button
               onClick={() => setShowLofiPlayer(!showLofiPlayer)}
-              className={`flex items-center gap-2 rounded-lg px-3 sm:px-5 py-2 transition-all duration-300 ${
+              className={`flex items-center justify-center rounded-lg transition-all ${
                 showLofiPlayer ? 'bg-pink-600/70 hover:bg-pink-600/90' : 'bg-violet-600/70 hover:bg-violet-600/90'
-              }`}
+              } ${isMobile ? 'w-8 h-8' : 'px-3 sm:px-5 py-2 gap-2'}`}
             >
-              <span className="text-xl">{showLofiPlayer ? '🎵' : '🎧'}</span>
+              <span className={`${isMobile ? 'text-base' : 'text-xl'}`}>{showLofiPlayer ? '🎵' : '🎧'}</span>
               {!isMobile && <span className="font-light">{showLofiPlayer ? 'Playing Music' : 'Play Music'}</span>}
             </button>
             
             {/* Background Scene Mini-Selector */}
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2">
               {Object.keys(videoBackgrounds).map((bg) => (
                 <button
                   key={bg}
@@ -611,82 +654,88 @@ function App() {
         </div>
       </div>
 
-      {/* Language Selector */}
-      <div className={`fixed ${isMobile ? 'top-4 right-4' : 'top-6 right-6'} z-20`}>
-        <div className="bg-black/50 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl">
-          <div className="flex gap-2">
-            {['en', 'ko', 'uz'].map((lang) => (
-              <button
-                key={lang}
-                onClick={() => handleLanguageChange(lang)}
-                className={`px-3 py-2 rounded-lg text-sm sm:text-base transition-all ${
-                  language === lang ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
-              >
-                {lang.toUpperCase()}
-              </button>
-            ))}
-          </div>
-          
-          {/* YouTube Channel Badge */}
-          <div className="mt-2 flex justify-center">
-            <a 
-              href="https://www.youtube.com/channel/awaken6143" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-all hover:-translate-y-1 shadow-lg w-full justify-center"
-              title="Visit my YouTube channel"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-              </svg>
-              <span className="text-sm font-medium">My Channel</span>
-            </a>
-          </div>
-          
-          {/* Calendar Widget */}
-          <div className="mt-4 bg-black/40 rounded-xl overflow-hidden border border-gray-700/50">
-            <div className="bg-indigo-600 text-white text-sm font-medium py-1.5 text-center">
-              {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
+      {/* Language Selector and YouTube Badge - Desktop version only */}
+      {!isMobile && (
+        <div className="fixed top-6 right-6 z-20">
+          <div className="bg-black/50 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl">
+            <div className="flex gap-2">
+              {['en', 'ko', 'uz'].map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => handleLanguageChange(lang)}
+                  className={`px-3 py-2 rounded-lg text-sm sm:text-base transition-all ${
+                    language === lang ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  }`}
+                >
+                  {lang.toUpperCase()}
+                </button>
+              ))}
             </div>
-            <div className="p-2">
-              <div className="grid grid-cols-7 gap-1 text-xs text-center">
-                {['Su','Mo','Tu','We','Th','Fr','Sa'].map(day => (
-                  <div key={day} className="text-gray-400 py-1">{day}</div>
-                ))}
-                {Array.from({ length: 31 }, (_, i) => {
-                  const day = i + 1;
-                  const isToday = day === new Date().getDate();
-                  return (
-                    <div 
-                      key={day}
-                      className={`py-1 rounded-sm ${
-                        isToday 
-                          ? 'bg-purple-500 text-white font-bold' 
-                          : day < new Date().getDate() 
-                            ? 'bg-gray-700/30 text-gray-400' 
-                            : 'bg-gray-800/40 text-gray-300'
-                      }`}
-                    >
-                      {day}
-                    </div>
-                  );
-                })}
+            
+            {/* YouTube Channel Badge */}
+            <div className="mt-2 flex justify-center">
+              <a 
+                href="https://www.youtube.com/channel/awaken6143" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-all shadow-lg w-full justify-center"
+                title="Visit my YouTube channel"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                <span className="text-sm font-medium">My Channel</span>
+              </a>
+            </div>
+            
+            {/* Calendar Widget */}
+            <div className="mt-4 bg-black/40 rounded-xl overflow-hidden border border-gray-700/50">
+              <div className="bg-indigo-600 text-white text-sm font-medium py-1.5 text-center">
+                {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
+              </div>
+              <div className="p-2">
+                <div className="grid grid-cols-7 gap-1 text-xs text-center">
+                  {['Su','Mo','Tu','We','Th','Fr','Sa'].map(day => (
+                    <div key={day} className="text-gray-400 py-1">{day}</div>
+                  ))}
+                  {Array.from({ length: 31 }, (_, i) => {
+                    const day = i + 1;
+                    const isToday = day === new Date().getDate();
+                    return (
+                      <div 
+                        key={day}
+                        className={`py-1 rounded-sm ${
+                          isToday 
+                            ? 'bg-purple-500 text-white font-bold' 
+                            : day < new Date().getDate() 
+                              ? 'bg-gray-700/30 text-gray-400' 
+                              : 'bg-gray-800/40 text-gray-300'
+                        }`}
+                      >
+                        {day}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Info Button and Modal */}
-      <div className={`fixed ${isMobile ? 'top-4 left-4' : 'top-6 left-6'} z-20`}>
-        <button
-          onClick={() => setShowInfoModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg shadow-lg transition-all"
-        >
-          ℹ️ {t.info}
-        </button>
-      </div>
+      {/* Info Button - Desktop only (mobile version is in the top bar) */}
+      {!isMobile && (
+        <div className="fixed top-6 left-6 z-20">
+          <button
+            onClick={() => setShowInfoModal(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg shadow-lg transition-all"
+          >
+            ℹ️ {t.info}
+          </button>
+        </div>
+      )}
+
+      {/* Info Modal */}
       {showInfoModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-30">
           <div className="bg-gray-800 rounded-xl p-6 shadow-xl max-w-md w-full">
@@ -710,9 +759,6 @@ function App() {
 
       {/* Background Music Player */}
       <BackgroundMusicPlayer isPlaying={isMusicPlaying} />
-
-      {/* Lofi Music Player */}
-      <LofiMusicPlayer isVisible={showLofiPlayer} toggleVisibility={() => setShowLofiPlayer(!showLofiPlayer)} />
     </div>
   );
 }
